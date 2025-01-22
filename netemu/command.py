@@ -25,11 +25,20 @@ class NodeCommand:
                 self.exec = self.exec[:-1]
             state.execute(self.nid, self.exec, disown)
 
+    class Connect:
+        def __init__(self, nid1, nid2):
+            self.nid1 = nid1
+            self.nid2 = nid2
+        def run(self):
+            state.connect(self.nid1, self.nid2)
+
     def __init__(self, nid, line):
         if not line:
             self.cmd = NodeCommand.Execute(nid, ["sh"])
         else:
             match line[0]:
+                case "connect" | "conn" | "c":
+                    self.cmd = NodeCommand.Connect(nid, line[1])
                 case "execute" | "exec" | "x":
                     self.cmd = NodeCommand.Execute(nid, line[1:])
                 case _:

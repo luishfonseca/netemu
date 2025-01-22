@@ -5,6 +5,7 @@ class State:
         def __init__(self, nid):
             self.proc = core.start_node()
             self.nid = nid
+            self.connected = []
 
     def __init__(self):
         self.nodes = {}
@@ -32,3 +33,38 @@ class State:
 
         n = self.nodes[nid]
         core.run_in_node(n.proc, [cmd], disown)
+
+    def connect(self, nid1, nid2):
+        if nid1 not in self.nodes:
+            print(f"Node {nid1} does not exist")
+            return
+
+        if nid2 not in self.nodes:
+            print(f"Node {nid2} does not exist")
+            return
+
+        n1 = self.nodes[nid1]
+        n2 = self.nodes[nid2]
+
+        if n2.nid in n1.connected or n1.nid in n2.connected:
+            print("Nodes are already connected")
+            return
+
+        n1.connected.append(n2.nid)
+        n2.connected.append(n1.nid)
+
+        core.run([
+            ["ip", "link", "add", f"veth_{n1.nid}", "type", "veth", "peer", f"veth_{n2.nid}"],
+            ["ip", "link", "set", f"veth_{n1.nid}", "netns", str(n2.proc.pid)],
+            ["ip", "link", "set", f"veth_{n2.nid}", "netns", str(n1.proc.pid)]
+        ])
+
+        core.run_in_node(n1.proc, [
+            ["ip", "link", "set", f"veth_{n2.nid}", "up"]
+        ])
+
+        core.run_in_node(n2.proc, [
+            ["ip", "link", "set", f"veth_{n1.nid}", "up"]
+        ])
+
+        print(f"Connected {n1.nid} to {n2.nid}")

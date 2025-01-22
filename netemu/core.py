@@ -56,7 +56,7 @@ def stop_node(proc):
         except KeyboardInterrupt:
             pass
 
-def run_in_node(proc, cmds, disown):
+def run_in_node(proc, cmds, disown=False):
     proc = Process(target=_runner, args=(proc.pid, cmds, disown))
     proc.start()
     while True:
