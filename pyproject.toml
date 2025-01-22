@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--cov=netemu --cov-report=html"
+addopts = "--cov=netemu --cov-report=html --capture=fd"
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
