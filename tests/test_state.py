@@ -1,12 +1,9 @@
 from netemu.state import State
 import os
-import time
 
 def test_new_node():
     state = State()
     nid = state.new_node()
-
-    time.sleep(1)
 
     assert nid == "n1"
     assert nid in state.nodes

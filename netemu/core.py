@@ -1,10 +1,11 @@
 import os
 import signal
 import subprocess
-from multiprocessing import Process
+from multiprocessing import Process, Pipe
 
-def _node():
+def _node(ready):
     os.unshare(os.CLONE_NEWNET)
+    ready.send(True)
     while True:
         try:
             signal.pause()
@@ -40,8 +41,10 @@ def run(cmds, disown=False):
             subprocess.run(cmd)
 
 def start_node():
-    proc = Process(target=_node, args=())
+    ready_rcv, ready_snd  = Pipe(False)
+    proc = Process(target=_node, args=(ready_snd,))
     proc.start()
+    assert ready_rcv.recv()
     return proc
 
 def stop_node(proc):
