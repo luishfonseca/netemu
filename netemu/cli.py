@@ -1,5 +1,6 @@
 import netemu.command as cmd
 
+
 def main():
     while True:
         try:

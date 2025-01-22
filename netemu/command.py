@@ -2,11 +2,14 @@ from netemu.state import State
 
 state = State()
 
+
 class ExitCommand:
     def __init__(self):
         pass
+
     def run(self):
         state.close_nodes()
+
 
 class NewCommand:
     def __init__(self, line):
@@ -20,17 +23,20 @@ class NewCommand:
                     self.switch = False
                 case _:
                     print("Unknown command")
+
     def run(self):
         if self.switch:
             state.new_switch()
         else:
             state.new_node()
 
+
 class NodeCommand:
     class Execute:
         def __init__(self, nid, line):
             self.nid = nid
             self.exec = line
+
         def run(self):
             disown = self.exec[-1] == "&"
             if disown:
@@ -41,6 +47,7 @@ class NodeCommand:
         def __init__(self, nid1, nid2):
             self.nid1 = nid1
             self.nid2 = nid2
+
         def run(self):
             state.connect(self.nid1, self.nid2)
 
@@ -55,5 +62,6 @@ class NodeCommand:
                     self.cmd = NodeCommand.Execute(nid, line[1:])
                 case _:
                     self.cmd = NodeCommand.Execute(nid, line)
+
     def run(self):
         self.cmd.run()

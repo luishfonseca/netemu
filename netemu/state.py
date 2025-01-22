@@ -1,5 +1,6 @@
 from netemu import core
 
+
 class State:
     class Node:
         def __init__(self, nid, switch=False):
@@ -30,10 +31,13 @@ class State:
         sw = self.Node(f"sw{self.last_switch}", True)
         self.nodes[sw.nid] = sw
 
-        core.run_in_node(sw.proc, [
-            ["ip", "link", "add", "br0", "type", "bridge"],
-            ["ip", "link", "set", "br0", "up"]
-        ])
+        core.run_in_node(
+            sw.proc,
+            [
+                ["ip", "link", "add", "br0", "type", "bridge"],
+                ["ip", "link", "set", "br0", "up"],
+            ],
+        )
 
         print(f"[{sw.proc.pid}] Created switch {sw.nid}")
 
@@ -70,27 +74,34 @@ class State:
         n1.connected.append(n2.nid)
         n2.connected.append(n1.nid)
 
-        core.run([
-            ["ip", "link", "add", f"veth_{n1.nid}", "type", "veth", "peer", f"veth_{n2.nid}"],
-            ["ip", "link", "set", f"veth_{n1.nid}", "netns", str(n2.proc.pid)],
-            ["ip", "link", "set", f"veth_{n2.nid}", "netns", str(n1.proc.pid)]
-        ])
+        core.run(
+            [
+                [
+                    "ip",
+                    "link",
+                    "add",
+                    f"veth_{n1.nid}",
+                    "type",
+                    "veth",
+                    "peer",
+                    f"veth_{n2.nid}",
+                ],
+                ["ip", "link", "set", f"veth_{n1.nid}", "netns", str(n2.proc.pid)],
+                ["ip", "link", "set", f"veth_{n2.nid}", "netns", str(n1.proc.pid)],
+            ]
+        )
 
-        core.run_in_node(n1.proc, [
-            ["ip", "link", "set", f"veth_{n2.nid}", "up"]
-        ])
+        core.run_in_node(n1.proc, [["ip", "link", "set", f"veth_{n2.nid}", "up"]])
 
-        core.run_in_node(n2.proc, [
-            ["ip", "link", "set", f"veth_{n1.nid}", "up"]
-        ])
+        core.run_in_node(n2.proc, [["ip", "link", "set", f"veth_{n1.nid}", "up"]])
 
         if n1.switch:
-            core.run_in_node(n1.proc, [
-                ["ip", "link", "set", f"veth_{n2.nid}", "master", "br0"]
-            ])
+            core.run_in_node(
+                n1.proc, [["ip", "link", "set", f"veth_{n2.nid}", "master", "br0"]]
+            )
         if n2.switch:
-            core.run_in_node(n2.proc, [
-                ["ip", "link", "set", f"veth_{n1.nid}", "master", "br0"]
-            ])
+            core.run_in_node(
+                n2.proc, [["ip", "link", "set", f"veth_{n1.nid}", "master", "br0"]]
+            )
 
         print(f"Connected {n1.nid} to {n2.nid}")

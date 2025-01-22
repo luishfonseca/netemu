@@ -2,6 +2,7 @@ from netemu.state import State
 import os
 import json
 
+
 def test_new_node():
     state = State()
     nid = state.new_node()
@@ -23,12 +24,14 @@ def test_new_node():
 
     assert not os.path.exists(f"/proc/{state.nodes[nid].proc.pid}")
 
+
 def test_execute_no_node(capfd):
     state = State()
 
     state.execute("n1", ["sh"])
 
     assert capfd.readouterr().out == "Node n1 does not exist\n"
+
 
 def test_execute(capfd):
     state = State()
@@ -43,6 +46,7 @@ def test_execute(capfd):
     assert capfd.readouterr().out == f"{netns}\n"
 
     state.close_nodes()
+
 
 def test_connect_no_node(capfd):
     state = State()
@@ -59,6 +63,7 @@ def test_connect_no_node(capfd):
     assert capfd.readouterr().out == "Node n2 does not exist\n"
 
     state.close_nodes()
+
 
 def test_connect(capfd):
     state = State()
@@ -85,6 +90,7 @@ def test_connect(capfd):
 
     state.close_nodes()
 
+
 def test_switch(capfd):
     state = State()
     state.new_switch()
@@ -101,6 +107,6 @@ def test_switch(capfd):
 
     state.execute("n1", ["ping", "-c", "1", "10.0.0.2"])
 
-    assert "1 received" in capfd.readouterr().out   
+    assert "1 received" in capfd.readouterr().out
 
-    state.close_nodes() 
+    state.close_nodes()

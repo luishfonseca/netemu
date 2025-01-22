@@ -3,6 +3,7 @@ import signal
 import subprocess
 from multiprocessing import Process, Pipe
 
+
 def _node(ready):
     os.unshare(os.CLONE_NEWNET)
     ready.send(True)
@@ -12,11 +13,13 @@ def _node(ready):
         except KeyboardInterrupt:
             pass
 
+
 def _runner(pid, cmds, disown):
     fd = os.open(f"/proc/{pid}/ns/net", os.O_RDONLY)
     os.setns(fd, os.CLONE_NEWNET)
     os.close(fd)
     run(cmds, disown)
+
 
 def init():
     uid = os.getuid()
@@ -33,6 +36,7 @@ def init():
     with open("/proc/self/gid_map", "w") as f:
         f.write(f"0 {gid} 1")
 
+
 def run(cmds, disown=False):
     for cmd in cmds:
         if disown:
@@ -40,12 +44,14 @@ def run(cmds, disown=False):
         else:
             subprocess.run(cmd)
 
+
 def start_node():
-    ready_rcv, ready_snd  = Pipe(False)
+    ready_rcv, ready_snd = Pipe(False)
     proc = Process(target=_node, args=(ready_snd,))
     proc.start()
     assert ready_rcv.recv()
     return proc
+
 
 def stop_node(proc):
     proc.terminate()
@@ -55,6 +61,7 @@ def stop_node(proc):
             break
         except KeyboardInterrupt:
             pass
+
 
 def run_in_node(proc, cmds, disown=False):
     proc = Process(target=_runner, args=(proc.pid, cmds, disown))
