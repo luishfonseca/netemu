@@ -24,3 +24,11 @@ class State:
     def close_nodes(self):
         for n in self.nodes.values():
             core.stop_node(n.proc)
+
+    def execute(self, nid, cmd, disown=False):
+        if nid not in self.nodes:
+            print(f"Node {nid} does not exist")
+            return
+
+        n = self.nodes[nid]
+        core.run_in_node(n.proc, [cmd], disown)

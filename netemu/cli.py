@@ -19,4 +19,4 @@ def main():
             case "new" | "n":
                 cmd.NewCommand().run()
             case _:
-                print("Unknown command")
+                cmd.NodeCommand(line[0], line[1:]).run()
