@@ -84,3 +84,23 @@ def test_connect(capfd):
     assert capfd.readouterr().out == "Nodes are already connected\n"
 
     state.close_nodes()
+
+def test_switch(capfd):
+    state = State()
+    state.new_switch()
+    state.new_node()
+    state.new_node()
+
+    state.connect("n1", "sw1")
+    state.connect("sw1", "n2")
+
+    state.execute("n1", ["ip", "a", "add", "10.0.0.1/24", "dev", "veth_sw1"])
+    state.execute("n2", ["ip", "a", "add", "10.0.0.2/24", "dev", "veth_sw1"])
+
+    capfd.readouterr()
+
+    state.execute("n1", ["ping", "-c", "1", "10.0.0.2"])
+
+    assert "1 received" in capfd.readouterr().out   
+
+    state.close_nodes() 
