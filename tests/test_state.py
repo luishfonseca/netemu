@@ -1,5 +1,6 @@
 from netemu.state import State
 import os
+import json
 
 def test_new_node():
     state = State()
@@ -42,4 +43,44 @@ def test_execute(capfd):
     assert capfd.readouterr().out == f"{netns}\n"
 
     state.close_nodes()
-    
+
+def test_connect_no_node(capfd):
+    state = State()
+    state.new_node()
+
+    capfd.readouterr()
+
+    state.connect("n1", "n2")
+
+    assert capfd.readouterr().out == "Node n2 does not exist\n"
+
+    state.connect("n2", "n1")
+
+    assert capfd.readouterr().out == "Node n2 does not exist\n"
+
+    state.close_nodes()
+
+def test_connect(capfd):
+    state = State()
+    nid1 = state.new_node()
+    nid2 = state.new_node()
+    state.connect(nid1, nid2)
+
+    assert nid2 in state.nodes[nid1].connected
+    assert nid1 in state.nodes[nid2].connected
+
+    capfd.readouterr()
+
+    state.execute(nid1, ["ip", "-json", "link", "show", "veth_n2"])
+
+    assert json.loads(capfd.readouterr().out)[0]["operstate"] == "UP"
+
+    state.execute(nid2, ["ip", "-json", "link", "show", "veth_n1"])
+
+    assert json.loads(capfd.readouterr().out)[0]["operstate"] == "UP"
+
+    state.connect(nid1, nid2)
+
+    assert capfd.readouterr().out == "Nodes are already connected\n"
+
+    state.close_nodes()
