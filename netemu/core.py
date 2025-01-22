@@ -5,7 +5,10 @@ from multiprocessing import Process
 def _node():
     os.unshare(os.CLONE_NEWNET)
     while True:
-        signal.pause()
+        try:
+            signal.pause()
+        except KeyboardInterrupt:
+            pass
 
 def init():
     uid = os.getuid()
@@ -29,4 +32,9 @@ def start_node():
 
 def stop_node(proc):
     proc.terminate()
-    proc.join()
+    while True:
+        try:
+            proc.join()
+            break
+        except KeyboardInterrupt:
+            pass

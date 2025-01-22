@@ -7,5 +7,6 @@ parallel = true
 sigterm = true
 omit = [
     "/nix/*", # .direnv might point to nix store
-    "tests/*"
+    "tests/*",
+    "netemu/__main__.py",
 ]
