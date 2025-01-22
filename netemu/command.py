@@ -9,10 +9,22 @@ class ExitCommand:
         state.close_nodes()
 
 class NewCommand:
-    def __init__(self):
-        pass
+    def __init__(self, line):
+        if not line:
+            self.switch = False
+        else:
+            match line[0]:
+                case "switch" | "sw":
+                    self.switch = True
+                case "node" | "n":
+                    self.switch = False
+                case _:
+                    print("Unknown command")
     def run(self):
-        state.new_node()
+        if self.switch:
+            state.new_switch()
+        else:
+            state.new_node()
 
 class NodeCommand:
     class Execute:

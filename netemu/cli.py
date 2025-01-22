@@ -17,6 +17,6 @@ def main():
                 cmd.ExitCommand().run()
                 break
             case "new" | "n":
-                cmd.NewCommand().run()
+                cmd.NewCommand(line[1:]).run()
             case _:
                 cmd.NodeCommand(line[0], line[1:]).run()

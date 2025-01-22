@@ -2,14 +2,16 @@ from netemu import core
 
 class State:
     class Node:
-        def __init__(self, nid):
+        def __init__(self, nid, switch=False):
             self.proc = core.start_node()
             self.nid = nid
+            self.switch = switch
             self.connected = []
 
     def __init__(self):
         self.nodes = {}
         self.last_node = 0
+        self.last_switch = 0
         core.init()
 
     def new_node(self):
@@ -21,6 +23,21 @@ class State:
         print(f"[{n.proc.pid}] Created node {n.nid}")
 
         return n.nid
+
+    def new_switch(self):
+        self.last_switch += 1
+
+        sw = self.Node(f"sw{self.last_switch}", True)
+        self.nodes[sw.nid] = sw
+
+        core.run_in_node(sw.proc, [
+            ["ip", "link", "add", "br0", "type", "bridge"],
+            ["ip", "link", "set", "br0", "up"]
+        ])
+
+        print(f"[{sw.proc.pid}] Created switch {sw.nid}")
+
+        return sw.nid
 
     def close_nodes(self):
         for n in self.nodes.values():
@@ -66,5 +83,14 @@ class State:
         core.run_in_node(n2.proc, [
             ["ip", "link", "set", f"veth_{n1.nid}", "up"]
         ])
+
+        if n1.switch:
+            core.run_in_node(n1.proc, [
+                ["ip", "link", "set", f"veth_{n2.nid}", "master", "br0"]
+            ])
+        if n2.switch:
+            core.run_in_node(n2.proc, [
+                ["ip", "link", "set", f"veth_{n1.nid}", "master", "br0"]
+            ])
 
         print(f"Connected {n1.nid} to {n2.nid}")
