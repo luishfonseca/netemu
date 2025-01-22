@@ -9,7 +9,7 @@
       pkgs = import inputs.nixpkgs {inherit system;};
     in {
       devShell = pkgs.mkShell {
-        packages = with pkgs; [(python3.withPackages (ps: with ps; [ruff pytest pytest-cov]))];
+        packages = with pkgs; [(python3.withPackages (ps: with ps; [ruff pytest pytest-cov flit]))];
       };
 
       formatter = pkgs.alejandra;
