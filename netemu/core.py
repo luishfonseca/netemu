@@ -27,6 +27,10 @@ def _runner(pid, cmds, disown):
 
 
 def init():
+    with open("/proc/sys/user/max_user_namespaces", "r") as f:
+        if int(f.read()) < 1:
+            raise PermissionError("User namespaces are not enabled")
+
     uid = os.getuid()
     gid = os.getgid()
 
