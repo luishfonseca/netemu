@@ -1,11 +1,16 @@
 import os
+import ctypes
 import signal
 import subprocess
 from multiprocessing import Process, Pipe
 
+libc = ctypes.CDLL(None)
+CLONE_NEWUSER = 0x10000000
+CLONE_NEWNET = 0x40000000
+
 
 def _node(ready):
-    os.unshare(os.CLONE_NEWNET)
+    libc.unshare(CLONE_NEWNET)
     ready.send(True)
     while True:
         try:
@@ -16,7 +21,7 @@ def _node(ready):
 
 def _runner(pid, cmds, disown):
     fd = os.open(f"/proc/{pid}/ns/net", os.O_RDONLY)
-    os.setns(fd, os.CLONE_NEWNET)
+    libc.setns(fd, CLONE_NEWNET)
     os.close(fd)
     run(cmds, disown)
 
@@ -25,7 +30,7 @@ def init():
     uid = os.getuid()
     gid = os.getgid()
 
-    os.unshare(os.CLONE_NEWUSER | os.CLONE_NEWNET)
+    libc.unshare(CLONE_NEWUSER | CLONE_NEWNET)
 
     with open("/proc/self/uid_map", "w") as f:
         f.write(f"0 {uid} 1")

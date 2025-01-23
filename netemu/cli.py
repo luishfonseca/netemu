@@ -13,11 +13,10 @@ def main():
         if len(line) == 0:
             continue
 
-        match line[0]:
-            case "exit":
-                cmd.ExitCommand().run()
-                break
-            case "new" | "n":
-                cmd.NewCommand(line[1:]).run()
-            case _:
-                cmd.NodeCommand(line[0], line[1:]).run()
+        if line[0] in ("exit",):
+            cmd.ExitCommand().run()
+            break
+        elif line[0] in ("new", "n"):
+            cmd.NewCommand(line[1:]).run()
+        else:
+            cmd.NodeCommand(line[0], line[1:]).run()

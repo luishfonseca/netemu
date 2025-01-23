@@ -16,13 +16,12 @@ class NewCommand:
         if not line:
             self.switch = False
         else:
-            match line[0]:
-                case "switch" | "sw":
-                    self.switch = True
-                case "node" | "n":
-                    self.switch = False
-                case _:
-                    print("Unknown command")
+            if line[0] in ("switch", "sw"):
+                self.switch = True
+            elif line[0] in ("node", "n"):
+                self.switch = False
+            else:
+                print("Unknown command")
 
     def run(self):
         if self.switch:
@@ -55,13 +54,12 @@ class NodeCommand:
         if not line:
             self.cmd = NodeCommand.Execute(nid, ["sh"])
         else:
-            match line[0]:
-                case "connect" | "conn" | "c":
-                    self.cmd = NodeCommand.Connect(nid, line[1])
-                case "execute" | "exec" | "x":
-                    self.cmd = NodeCommand.Execute(nid, line[1:])
-                case _:
-                    self.cmd = NodeCommand.Execute(nid, line)
+            if line[0] in ("connect", "conn", "c"):
+                self.cmd = NodeCommand.Connect(nid, line[1])
+            elif line[0] in ("execute", "exec", "x"):
+                self.cmd = NodeCommand.Execute(nid, line[1:])
+            else:
+                self.cmd = NodeCommand.Execute(nid, line)
 
     def run(self):
         self.cmd.run()
