@@ -13,7 +13,6 @@ class State:
         self.nodes = {}
         self.last_node = 0
         self.last_switch = 0
-        core.init()
 
     def new_node(self):
         self.last_node += 1

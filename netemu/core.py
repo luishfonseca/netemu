@@ -5,7 +5,6 @@ import subprocess
 from multiprocessing import Process, Pipe
 
 libc = ctypes.CDLL(None)
-CLONE_NEWUSER = 0x10000000
 CLONE_NEWNET = 0x40000000
 
 
@@ -24,26 +23,6 @@ def _runner(pid, cmds, disown):
     libc.setns(fd, CLONE_NEWNET)
     os.close(fd)
     run(cmds, disown)
-
-
-def init():
-    with open("/proc/sys/user/max_user_namespaces", "r") as f:
-        if int(f.read()) < 1:
-            raise PermissionError("User namespaces are not enabled")
-
-    uid = os.getuid()
-    gid = os.getgid()
-
-    libc.unshare(CLONE_NEWUSER | CLONE_NEWNET)
-
-    with open("/proc/self/uid_map", "w") as f:
-        f.write(f"0 {uid} 1")
-
-    with open("/proc/self/setgroups", "w") as f:
-        f.write("deny")
-
-    with open("/proc/self/gid_map", "w") as f:
-        f.write(f"0 {gid} 1")
 
 
 def run(cmds, disown=False):
