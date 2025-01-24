@@ -18,7 +18,7 @@ netemu = "netemu.__main__:main"
 Home = "https://github.com/luishfonseca/netemu"
 
 [tool.pytest.ini_options]
-addopts = "--cov=netemu --cov-report=html --capture=fd"
+addopts = "--cov=netemu --cov-report=html --cov-report=term --capture=fd"
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
