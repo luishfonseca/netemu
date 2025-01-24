@@ -1,7 +1,7 @@
 import netemu.command as cmd
 
 
-def main():
+def start():
     while True:
         try:
             line = input("> ").split()
