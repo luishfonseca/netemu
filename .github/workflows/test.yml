@@ -13,6 +13,16 @@ permissions:
   contents: read
 
 jobs:
+  does-this-work:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: ubuntu:latest
+          options: --security-opt "seccomp=unconfined"
+          run: unshare -Ur whoami
+
   lint:
     runs-on: ubuntu-latest
 
